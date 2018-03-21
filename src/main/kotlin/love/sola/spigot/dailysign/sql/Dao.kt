@@ -25,7 +25,7 @@ class Dao {
     private val connection: Connection
         get() = DriverManager.getConnection(url, username, password)
 
-    fun <R> query(
+    private fun <R> query(
         @Language("MySQL") sql: String,
         preExec: (ps: PreparedStatement) -> Unit = {},
         postExec: (rs: ResultSet) -> R
@@ -35,13 +35,13 @@ class Dao {
         }
     }
 
-    fun execute(@Language("MySQL") sql: String, preExec: (ps: PreparedStatement) -> Unit = {}): Boolean {
+    private fun execute(@Language("MySQL") sql: String, preExec: (ps: PreparedStatement) -> Unit = {}): Boolean {
         return connection.use {
             it.prepareStatement(sql).apply(preExec).execute()
         }
     }
 
-    fun update(@Language("MySQL") sql: String, preExec: (ps: PreparedStatement) -> Unit = {}): Int {
+    private fun update(@Language("MySQL") sql: String, preExec: (ps: PreparedStatement) -> Unit = {}): Int {
         return connection.use {
             it.prepareStatement(sql).apply(preExec).executeUpdate()
         }
