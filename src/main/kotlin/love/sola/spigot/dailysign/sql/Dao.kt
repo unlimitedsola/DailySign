@@ -3,6 +3,7 @@ package love.sola.spigot.dailysign.sql
 
 import love.sola.spigot.dailysign.config
 import love.sola.spigot.dailysign.utils.getValue
+import org.intellij.lang.annotations.Language
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.PreparedStatement
@@ -24,27 +25,32 @@ class Dao {
     private val connection: Connection
         get() = DriverManager.getConnection(url, username, password)
 
-    fun <R> query(sql: String, preExec: (ps: PreparedStatement) -> Unit = {}, postExec: (rs: ResultSet) -> R): R {
+    fun <R> query(
+        @Language("MySQL") sql: String,
+        preExec: (ps: PreparedStatement) -> Unit = {},
+        postExec: (rs: ResultSet) -> R
+    ): R {
         return connection.use {
             it.prepareStatement(sql).apply(preExec).executeQuery().let(postExec)
         }
     }
 
-    fun execute(sql: String, preExec: (ps: PreparedStatement) -> Unit = {}): Boolean {
+    fun execute(@Language("MySQL") sql: String, preExec: (ps: PreparedStatement) -> Unit = {}): Boolean {
         return connection.use {
             it.prepareStatement(sql).apply(preExec).execute()
         }
     }
 
-    fun update(sql: String, preExec: (ps: PreparedStatement) -> Unit = {}): Int {
+    fun update(@Language("MySQL") sql: String, preExec: (ps: PreparedStatement) -> Unit = {}): Int {
         return connection.use {
             it.prepareStatement(sql).apply(preExec).executeUpdate()
         }
     }
 
     private fun createTable() {
+        //language=MySQL
         execute(
-                """
+            """
                 CREATE TABLE IF NOT EXISTS `dailysign` (
                   `id` INT(11) NOT NULL AUTO_INCREMENT,
                   `username` VARCHAR(20) NOT NULL,
@@ -54,8 +60,9 @@ class Dao {
                 )
             """.trimIndent()
         )
+        //language=MySQL
         execute(
-                """
+            """
                 CREATE TABLE IF NOT EXISTS `signuser` (
                   `username` VARCHAR(255) NOT NULL,
                   `count` INT(11) NOT NULL,
@@ -90,31 +97,29 @@ class Dao {
 
     fun querySignInfoYesterday(player: String): SignInfo? {
         return querySignInfo(
-                player,
-                (System.currentTimeMillis() / 1000 / 3600 / 24).toInt() - 1
+            player,
+            (System.currentTimeMillis() / 1000 / 3600 / 24).toInt() - 1
         )
     }
 
     fun querySignInfoByOffset(player: String, offset: Int): SignInfo? {
         return querySignInfo(
-                player,
-                (System.currentTimeMillis() / 1000 / 3600 / 24).toInt() + offset
+            player,
+            (System.currentTimeMillis() / 1000 / 3600 / 24).toInt() + offset
         )
     }
 
     fun querySignInfo(player: String, date: Int = (System.currentTimeMillis() / 1000 / 3600 / 24).toInt()): SignInfo? {
-        return query(
-                "SELECT * FROM dailysign WHERE username=? AND signtime BETWEEN ? AND ?", {
+        return query("SELECT * FROM dailysign WHERE username=? AND signtime BETWEEN ? AND ?", {
             it.setString(1, player)
             it.setInt(2, date * 3600 * 24)
             it.setInt(3, (date + 1) * 3600 * 24)
-        }
-        ) {
+        }) {
             return@query if (it.next()) {
                 SignInfo(
-                        it.getString("username"),
-                        it.getString("reward"),
-                        it.getInt("signtime")
+                    it.getString("username"),
+                    it.getString("reward"),
+                    it.getInt("signtime")
                 )
             } else {
                 null
@@ -123,17 +128,15 @@ class Dao {
     }
 
     fun queryUserInfo(player: String): UserInfo? {
-        return query(
-                "SELECT * FROM signuser WHERE username=?", {
+        return query("SELECT * FROM signuser WHERE username=?", {
             it.setString(1, player)
-        }
-        ) {
+        }) {
             return@query if (it.next()) {
                 UserInfo(
-                        it.getString("username"),
-                        it.getInt("count"),
-                        it.getInt("continuous"),
-                        it.getInt("highest")
+                    it.getString("username"),
+                    it.getInt("count"),
+                    it.getInt("continuous"),
+                    it.getInt("highest")
                 )
             } else {
                 null
@@ -159,22 +162,20 @@ class Dao {
     }
 
     fun queryRankBoard(type: String, offset: Int, count: Int): List<UserInfo> {
-        return query(
-                "SELECT * FROM signuser ORDER BY ? DESC LIMIT ?,?", {
+        return query("SELECT * FROM signuser ORDER BY ? DESC LIMIT ?,?", {
             it.setString(1, type)
             it.setInt(2, offset)
             it.setInt(3, count)
-        }
-        ) {
+        }) {
             val infoList = ArrayList<UserInfo>(count)
             while (it.next()) {
                 infoList.add(
-                        UserInfo(
-                                it.getString("username"),
-                                it.getInt("count"),
-                                it.getInt("continuous"),
-                                it.getInt("highest")
-                        )
+                    UserInfo(
+                        it.getString("username"),
+                        it.getInt("count"),
+                        it.getInt("continuous"),
+                        it.getInt("highest")
+                    )
                 )
             }
             return@query infoList
@@ -182,11 +183,9 @@ class Dao {
     }
 
     fun recountContinuous(player: String): Int {
-        return query(
-                "SELECT signtime FROM dailysign WHERE username=? ORDER BY signtime DESC", {
+        return query("SELECT signtime FROM dailysign WHERE username=? ORDER BY signtime DESC", {
             it.setString(1, player)
-        }
-        ) {
+        }) {
             if (!it.next()) return@query 0
             var lastDate = it.getInt("signtime") / 3600 / 24
             var nextDate: Int
@@ -205,11 +204,9 @@ class Dao {
     }
 
     fun signAll(player: String) {
-        return query(
-                "SELECT signtime FROM dailysign WHERE username=? ORDER BY signtime DESC", {
+        return query("SELECT signtime FROM dailysign WHERE username=? ORDER BY signtime DESC", {
             it.setString(1, player)
-        }
-        ) {
+        }) {
             if (!it.next()) return@query
             var lastDate = it.getInt("signtime") / 3600 / 24
             var nextDate: Int
@@ -228,11 +225,9 @@ class Dao {
     }
 
     fun querySignCount(player: String): Int {
-        return query(
-                "SELECT COUNT(signtime) FROM dailysign WHERE username=?", {
+        return query("SELECT COUNT(signtime) FROM dailysign WHERE username=?", {
             it.setString(1, player)
-        }
-        ) {
+        }) {
             return@query if (!it.next()) -1 else it.getInt(1)
         }
     }
