@@ -1,0 +1,7 @@
+name: DailySign
+main: love.sola.spigot.dailysign.DailySign
+version: 1.0
+commands:
+   qiandao:
+      description: Sola.
+      usage: /<command>

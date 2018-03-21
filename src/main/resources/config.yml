@@ -1,0 +1,58 @@
+#SQL
+#连接地址，用户名，密码
+sql:
+  url: 'jdbc:mysql://localhost/dailysign'
+  username: 'root'
+  password: ''
+
+#Server
+#服务器组，玩家同一天可以在不同的服务器组中各获得一次签到奖励
+serverGroup: 'A'
+
+#Resign
+#当天数小于等于该值时所需的数量
+#从小到大顺序 打乱将不会正常工作
+resignRequirements:
+    3: 2
+    5: 3
+    7: 4
+    15: 7
+#补签卡物品
+resignItem:
+    id: 386
+    amount: 1
+    name: '§4补签卡'
+    lore:
+        - '§e可以用来补签漏签的签到'
+
+#奖励配置
+rewards:
+    generic: []
+    streak: {}
+
+messages:
+    #Generic
+    Command_Player_Only: '该命令只能由玩家执行.'
+    Internal_Error: '内部错误,请联系管理员.'
+    Not_Enough_Requirements: '所需物品不足.'
+    #FancyMessage
+    Button_Click_Me_To_Sign: 'JSON MSG'
+    Button_Claim_Reward: 'JSON MSG'
+    #Get
+    Already_Claimed: '您已领取过当日签到礼包.'
+    #Rank
+    Invalid_Type: '无效的类型'
+    Rank_List_Header: '-----签到排行榜 第{0}页-----'
+    Rank_List_Entry: '{0}: 总签到{1} 连续签到{2} 历史最高{3}'
+    #Info
+    Info_Format: '玩家: {0}|总签到: {1}|连续签到: {2}|历史最高: {3}'
+    #Sign
+    Sign_Success: '签到成功!'
+    #Resign
+    Unresignable: '因时间过久,已无法补签.'
+    Resign_Confirm: '本次补签需要{0}张补签卡,请重新键入该命令确认此操作.'
+    Resign_Success: '补签成功.'
+    #SignAll
+    Sign_All_Success: '连签成功.'
+    #Set
+    Set_Success: '奖品已成功设置.'
