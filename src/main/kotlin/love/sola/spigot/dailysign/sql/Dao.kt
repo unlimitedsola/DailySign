@@ -51,7 +51,7 @@ class Dao {
         //language=MySQL
         execute(
             """
-                CREATE TABLE IF NOT EXISTS `dailysign` (
+                CREATE TABLE IF NOT EXISTS `daily_sign` (
                   `id` INT(11) NOT NULL AUTO_INCREMENT,
                   `username` VARCHAR(20) NOT NULL,
                   `reward` VARCHAR(255) NOT NULL DEFAULT '',
@@ -63,7 +63,7 @@ class Dao {
         //language=MySQL
         execute(
             """
-                CREATE TABLE IF NOT EXISTS `signuser` (
+                CREATE TABLE IF NOT EXISTS `sign_user` (
                   `username` VARCHAR(255) NOT NULL,
                   `count` INT(11) NOT NULL,
                   `continuous` INT(11) NOT NULL,
@@ -75,7 +75,7 @@ class Dao {
     }
 
     fun createNewUser(player: String): Int {
-        return update("INSERT IGNORE INTO signuser VALUES(?,0,0,0)") {
+        return update("INSERT IGNORE INTO sign_user VALUES(?,0,0,0)") {
             it.setString(1, player)
         }
     }
@@ -89,7 +89,7 @@ class Dao {
     }
 
     fun sign(player: String, time: Long): Int {
-        return update("INSERT INTO dailysign VALUES(NULL,?,DEFAULT,?)") {
+        return update("INSERT INTO daily_sign VALUES(NULL,?,DEFAULT,?)") {
             it.setString(1, player)
             it.setInt(2, (time / 1000).toInt())
         }
@@ -110,7 +110,7 @@ class Dao {
     }
 
     fun querySignInfo(player: String, date: Int = (System.currentTimeMillis() / 1000 / 3600 / 24).toInt()): SignInfo? {
-        return query("SELECT * FROM dailysign WHERE username=? AND signtime BETWEEN ? AND ?", {
+        return query("SELECT * FROM daily_sign WHERE username=? AND signtime BETWEEN ? AND ?", {
             it.setString(1, player)
             it.setInt(2, date * 3600 * 24)
             it.setInt(3, (date + 1) * 3600 * 24)
@@ -128,7 +128,7 @@ class Dao {
     }
 
     fun queryUserInfo(player: String): UserInfo? {
-        return query("SELECT * FROM signuser WHERE username=?", {
+        return query("SELECT * FROM sign_user WHERE username=?", {
             it.setString(1, player)
         }) {
             return@query if (it.next()) {
@@ -145,7 +145,7 @@ class Dao {
     }
 
     fun updateUserInfo(info: UserInfo): Boolean {
-        return update("UPDATE signuser SET `count`=?, continuous=?, highest=? WHERE username=?") {
+        return update("UPDATE sign_user SET `count`=?, continuous=?, highest=? WHERE username=?") {
             it.setString(4, info.username)
             it.setInt(1, info.signCount)
             it.setInt(2, info.continuousSignCount)
@@ -154,7 +154,7 @@ class Dao {
     }
 
     fun updateRewarded(info: SignInfo): Boolean {
-        return update("UPDATE dailysign SET reward=? WHERE username=? AND signtime=?") {
+        return update("UPDATE daily_sign SET reward=? WHERE username=? AND signtime=?") {
             it.setString(1, info.server)
             it.setString(2, info.username)
             it.setInt(3, info.time)
@@ -162,7 +162,7 @@ class Dao {
     }
 
     fun queryRankBoard(type: String, offset: Int, count: Int): List<UserInfo> {
-        return query("SELECT * FROM signuser ORDER BY ? DESC LIMIT ?,?", {
+        return query("SELECT * FROM sign_user ORDER BY ? DESC LIMIT ?,?", {
             it.setString(1, type)
             it.setInt(2, offset)
             it.setInt(3, count)
@@ -183,7 +183,7 @@ class Dao {
     }
 
     fun recountContinuous(player: String): Int {
-        return query("SELECT signtime FROM dailysign WHERE username=? ORDER BY signtime DESC", {
+        return query("SELECT signtime FROM daily_sign WHERE username=? ORDER BY signtime DESC", {
             it.setString(1, player)
         }) {
             if (!it.next()) return@query 0
@@ -204,7 +204,7 @@ class Dao {
     }
 
     fun signAll(player: String) {
-        return query("SELECT signtime FROM dailysign WHERE username=? ORDER BY signtime DESC", {
+        return query("SELECT signtime FROM daily_sign WHERE username=? ORDER BY signtime DESC", {
             it.setString(1, player)
         }) {
             if (!it.next()) return@query
@@ -214,7 +214,7 @@ class Dao {
                 nextDate = it.getInt("signtime") / 3600 / 24
                 while (lastDate - nextDate > 1) {
                     --lastDate
-                    update("INSERT INTO dailysign VALUES(NULL,?,DEFAULT,?)") {
+                    update("INSERT INTO daily_sign VALUES(NULL,?,DEFAULT,?)") {
                         it.setString(1, player)
                         it.setInt(2, lastDate * 3600 * 24)
                     }
@@ -225,7 +225,7 @@ class Dao {
     }
 
     fun querySignCount(player: String): Int {
-        return query("SELECT COUNT(signtime) FROM dailysign WHERE username=?", {
+        return query("SELECT COUNT(signtime) FROM daily_sign WHERE username=?", {
             it.setString(1, player)
         }) {
             return@query if (!it.next()) -1 else it.getInt(1)
