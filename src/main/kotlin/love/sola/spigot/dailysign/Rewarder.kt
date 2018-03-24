@@ -11,15 +11,14 @@ class Rewarder {
 
     fun check(player: Player): Boolean {
         run {
-            val reward =
-                    randomReward(settings.rewards.generic)
+            val reward = randomReward(settings.rewards.generic)
             rewardPlayer(player, reward!!)
         }
         val userInfo = dao.queryUserInfo(player.name)
         run {
             //TODO floor entry
-            val rewards = settings.rewards.streak[userInfo!!.continuousSignCount] ?: return@run
-            val reward = randomReward(rewards)
+            val rewards = settings.rewards.streak[userInfo!!.continuousSignCount.toString()] ?: return@run
+            val reward = randomReward(rewards as List<Settings.Rewards.Reward>)
             rewardPlayer(player, reward!!)
         }
         return true
