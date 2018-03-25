@@ -17,6 +17,7 @@ class CommandMain : CommandExecutor {
             "top" -> ::rank
             "bq" -> ::resign
             "lq" -> ::signAll
+            "set" -> ::set
             else -> {
                 return false
             }

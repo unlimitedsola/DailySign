@@ -10,7 +10,6 @@ import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
-
 fun CommandMain.get(sender: CommandSender, command: Command, label: String, args: Array<String>): Boolean {
     if (sender !is Player) {
         sender.sendMessage(lang("Command_Player_Only"))

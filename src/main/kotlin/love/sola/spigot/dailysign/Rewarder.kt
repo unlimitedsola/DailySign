@@ -18,16 +18,16 @@ class Rewarder {
         run {
             //TODO floor entry
             val rewards = settings.rewards.streak[userInfo!!.continuousSignCount.toString()] ?: return@run
-            val reward = randomReward(rewards as List<Settings.Rewards.Reward>)
+            val reward = randomReward(rewards as List<Reward>)
             rewardPlayer(player, reward!!)
         }
         return true
     }
 
-    private fun randomReward(rewards: List<Settings.Rewards.Reward>): Settings.Rewards.Reward? {
+    private fun randomReward(rewards: List<Reward>): Reward? {
         var chanceTotal = rewards.sumBy { it.chance }
         val random = rd.nextInt(chanceTotal)
-        var result: Settings.Rewards.Reward? = null
+        var result: Reward? = null
         chanceTotal = 0
         for (reward in rewards) {
             chanceTotal += reward.chance
@@ -38,13 +38,18 @@ class Rewarder {
         return result
     }
 
-    private fun rewardPlayer(player: Player, reward: Settings.Rewards.Reward) {
-        for (command in reward.commands) {
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("{player}", player.name))
+    private fun rewardPlayer(player: Player, reward: Reward) {
+        if (reward.commands != null) {
+            for (command in reward.commands!!) { // we ignore atomic issue here
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("{player}", player.name))
+            }
         }
-        for (item in reward.items) {
-            player.inventory.addItem(item.clone())
+        if (reward.items != null) {
+            for (item in reward.items!!) { // we ignore atomic issue here
+                player.inventory.addItem(item.clone())
+            }
         }
     }
+
 
 }

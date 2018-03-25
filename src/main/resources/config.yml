@@ -36,8 +36,8 @@ messages:
     Internal_Error: '内部错误,请联系管理员.'
     Not_Enough_Requirements: '所需物品不足.'
     #FancyMessage
-    Button_Click_Me_To_Sign: 'JSON MSG'
-    Button_Claim_Reward: 'JSON MSG'
+    Button_Click_Me_To_Sign: '["",{"text":"点我签到","color":"gold","bold":true,"clickEvent":{"action":"run_command","value":"/qiandao"}}]'
+    Button_Claim_Reward: '["",{"text":"点我领取签到奖励","color":"gold","bold":true,"clickEvent":{"action":"run_command","value":"/qiandao get"}}]'
     #Get
     Already_Claimed: '您已领取过当日签到礼包.'
     #Rank

@@ -25,9 +25,9 @@ fun CommandMain.resign(sender: CommandSender, command: Command, label: String, a
     }
     val userInfo = dao.queryUserInfo(sender.name)
     var requireCount = -1
-    for ((key, value) in settings.resignRequirements) {
-        if (userInfo!!.continuousSignCount <= key) {
-            requireCount = value
+    for ((key, value) in settings.resignRequirements.getValues(false)) {
+        if (userInfo!!.continuousSignCount <= key.toInt()) {
+            requireCount = value as Int
         }
     }
     if (requireCount < 0) {

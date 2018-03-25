@@ -5,6 +5,7 @@ import love.sola.spigot.dailysign.listener.PlayerListener
 import love.sola.spigot.dailysign.sql.Dao
 import org.bukkit.Bukkit
 import org.bukkit.configuration.file.FileConfiguration
+import org.bukkit.configuration.serialization.ConfigurationSerialization
 import org.bukkit.plugin.java.JavaPlugin
 
 
@@ -23,10 +24,10 @@ class DailySign : JavaPlugin() {
 
     override fun onEnable() {
         plugin = this
+        ConfigurationSerialization.registerClass(Reward::class.java)
         settings = Settings()
         dao = Dao()
         rewarder = Rewarder()
-        this.saveDefaultConfig()
         this.getCommand("qiandao").executor = CommandMain()
         Bukkit.getPluginManager().registerEvents(PlayerListener(), this)
     }
