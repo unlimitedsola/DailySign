@@ -27,3 +27,28 @@ compileKotlin {
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
+
+def serverDir = 'D:\\Game\\MinecraftTestServers\\1.12.2'
+
+task copyToTestServer(type: Copy) {
+    from "build/libs/$project.name-$version-all.jar"
+    into "$serverDir/plugins/"
+}
+
+tasks.copyToTestServer.dependsOn 'shadowJar'
+tasks.copyToTestServer.group = 'mcdebug'
+
+task debug(type: Exec) {
+    workingDir serverDir
+    commandLine 'cmd', '/c', 'start.bat'
+    standardInput = System.in
+}
+
+tasks.debug.dependsOn 'copyToTestServer'
+tasks.debug.group = 'mcdebug'
+
+task removeTestServerConfig(type: Delete) {
+    delete("$serverDir/plugins/$project.name/")
+}
+
+tasks.removeTestServerConfig.group = 'mcdebug'

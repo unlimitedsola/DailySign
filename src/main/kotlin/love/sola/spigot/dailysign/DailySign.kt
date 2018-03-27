@@ -25,6 +25,7 @@ class DailySign : JavaPlugin() {
     override fun onEnable() {
         plugin = this
         ConfigurationSerialization.registerClass(Reward::class.java)
+        ConfigurationSerialization.registerClass(Rewards::class.java)
         settings = Settings()
         dao = Dao()
         rewarder = Rewarder()

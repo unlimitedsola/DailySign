@@ -37,12 +37,12 @@ fun CommandMain.set(sender: CommandSender, command: Command, label: String, args
 }
 
 private fun insertGenericReward(reward: Reward) {
-    settings.rewards.generic = settings.rewards.generic.apply { add(reward) }
+    settings.rewards.generic.add(reward)
+    settings.rewards = settings.rewards //flush
 }
 
 
 private fun insertStreakReward(streak: Int, reward: Reward) {
-    settings.rewards.streak[streak.toString()] =
-            (settings.rewards.streak[streak.toString()] as MutableList<Reward>)
-                .apply { add(reward) }
+    settings.rewards.streak.getOrPut(streak) { arrayListOf() }.add(reward)
+    settings.rewards = settings.rewards
 }

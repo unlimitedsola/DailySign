@@ -16,9 +16,10 @@ class Rewarder {
         }
         val userInfo = dao.queryUserInfo(player.name)
         run {
-            //TODO floor entry
-            val rewards = settings.rewards.streak[userInfo!!.continuousSignCount.toString()] ?: return@run
-            val reward = randomReward(rewards as List<Reward>)
+            val rewards = settings.rewards.streak.entries.firstOrNull {
+                it.key <= userInfo!!.continuousSignCount
+            }?.value ?: return@run
+            val reward = randomReward(rewards)
             rewardPlayer(player, reward!!)
         }
         return true

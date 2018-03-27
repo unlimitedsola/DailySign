@@ -1,7 +1,9 @@
+# Header Test
+
 #SQL
 #连接地址，用户名，密码
 sql:
-  url: 'jdbc:mysql://localhost/dailysign'
+  url: 'jdbc:mysql://molecular-assembler/daily_sign'
   username: 'root'
   password: ''
 
@@ -17,18 +19,31 @@ resignRequirements:
     5: 3
     7: 4
     15: 7
+
 #补签卡物品
 resignItem:
-    id: 386
-    amount: 1
-    name: '§4补签卡'
-    lore:
-        - '§e可以用来补签漏签的签到'
+  ==: org.bukkit.inventory.ItemStack
+  type: ENCHANTED_BOOK
+  meta:
+    ==: ItemMeta
+    meta-type: ENCHANTED
+    stored-enchants:
+      LUCK: 3
+
+signAllItem:
+  ==: org.bukkit.inventory.ItemStack
+  type: ENCHANTED_BOOK
+  meta:
+    ==: ItemMeta
+    meta-type: ENCHANTED
+    stored-enchants:
+      LUCK: 3
 
 #奖励配置
 rewards:
-    generic: []
-    streak: {}
+  ==: love.sola.spigot.dailysign.Rewards
+  generic: []
+  streak: {}
 
 messages:
     #Generic

@@ -9,19 +9,17 @@ import org.bukkit.inventory.ItemStack
 class Settings {
 
     val serverGroup: String by config
-    val rewards: Rewards =
-        Rewards(config.getConfigurationSection("rewards"))
+    var rewards: Rewards by config
     val resignRequirements: ConfigurationSection by config //<Int, Int>
     val resignItem: ItemStack by config
     val signAllItem: ItemStack by config
 
-
 }
 
-class Rewards(subConfig: ConfigurationSection) {
+class Rewards(map: MutableMap<String, Any?>) : AutoConfigurationSerializable {
 
-    var generic: MutableList<Reward> by subConfig
-    var streak: ConfigurationSection by subConfig //<Int, List<Reward>>
+    var generic: MutableList<Reward> by map
+    var streak: MutableMap<Int, MutableList<Reward>> by map
 
 }
 
