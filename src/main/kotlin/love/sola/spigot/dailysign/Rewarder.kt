@@ -42,7 +42,7 @@ class Rewarder {
     private fun rewardPlayer(player: Player, reward: Reward) {
         if (reward.commands != null) {
             for (command in reward.commands!!) { // we ignore atomic issue here
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("{player}", player.name))
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("%player%", player.name))
             }
         }
         if (reward.items != null) {
