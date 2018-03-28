@@ -13,7 +13,7 @@ repositories {
     maven { url 'https://hub.spigotmc.org/nexus/content/groups/public/' }
 }
 
-ext.spigot_version = '1.12.2-R0.1-SNAPSHOT'
+ext.spigot_version = '1.11.2-R0.1-SNAPSHOT'
 
 dependencies {
     compileOnly "org.spigotmc:spigot-api:$spigot_version"
