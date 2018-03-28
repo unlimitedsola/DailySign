@@ -12,7 +12,6 @@ class Settings {
     var rewards: Rewards by config
     val resignRequirements: ConfigurationSection by config //<Int, Int>
     val resignItem: ItemStack by config
-    val signAllItem: ItemStack by config
 
 }
 
