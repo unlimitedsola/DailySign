@@ -1,7 +1,6 @@
 package love.sola.spigot.dailysign.command
 
 import love.sola.spigot.dailysign.*
-import love.sola.spigot.dailysign.sql.Dao
 import love.sola.spigot.dailysign.sql.SignInfo
 import love.sola.spigot.dailysign.utils.lang
 import love.sola.spigot.dailysign.utils.tellraw
@@ -15,7 +14,7 @@ fun CommandMain.get(sender: CommandSender, command: Command, label: String, args
         sender.sendMessage(lang("Command_Player_Only"))
         return true
     }
-    val info = dao.querySignInfo(sender.name)
+    val info = dao.querySignInfo(sender)
     if (info == null) {
         sender.tellraw(lang("Button_Click_Me_To_Sign"))
     } else {
@@ -27,7 +26,8 @@ fun CommandMain.get(sender: CommandSender, command: Command, label: String, args
                 } else {
                     info.server + ";" + settings.serverGroup
                 }
-                dao.updateRewarded(SignInfo(info.username, rewardServer, info.time))
+                //TODO kotlinize
+                dao.updateRewarded(SignInfo(info.playerId, info.playerName, rewardServer, info.time))
             }
         } else {
             sender.sendMessage(lang("Already_Claimed"))

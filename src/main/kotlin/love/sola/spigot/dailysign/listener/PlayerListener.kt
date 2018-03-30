@@ -11,7 +11,7 @@ class PlayerListener : Listener {
 
     @EventHandler
     fun onJoin(evt: PlayerJoinEvent) {
-        dao.createNewUser(evt.player.name)
+        dao.createNewUser(evt.player)
     }
 
 }

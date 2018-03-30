@@ -14,7 +14,7 @@ class Rewarder {
             val reward = randomReward(settings.rewards.generic)
             rewardPlayer(player, reward!!)
         }
-        val userInfo = dao.queryUserInfo(player.name)
+        val userInfo = dao.queryUserInfo(player)
         run {
             val rewards = settings.rewards.streak.entries.firstOrNull {
                 it.key <= userInfo!!.continuousSignCount

@@ -18,8 +18,8 @@ fun CommandMain.sign(sender: CommandSender, command: Command, label: String, arg
         sender.sendMessage(lang("Command_Player_Only"))
         return true
     }
-    var signInfo: SignInfo? = dao.querySignInfo(sender.name)
-    val userInfo = dao.queryUserInfo(sender.name)
+    var signInfo: SignInfo? = dao.querySignInfo(sender)
+    val userInfo = dao.queryUserInfo(sender)
     if (signInfo != null) {
         val servers = Arrays.asList(*StringUtils.split(signInfo.server, ";"))
         if (!servers.contains(settings.serverGroup)) {
@@ -28,7 +28,7 @@ fun CommandMain.sign(sender: CommandSender, command: Command, label: String, arg
         sender.sendMessage(
                 format(
                         "Info_Format",
-                        userInfo!!.username,
+                        userInfo!!.playerName,
                         userInfo.continuousSignCount,
                         userInfo.continuousSignCount,
                         userInfo.signCount
@@ -36,8 +36,8 @@ fun CommandMain.sign(sender: CommandSender, command: Command, label: String, arg
         )
         return true
     }
-    dao.signNow(sender.name)
-    signInfo = dao.querySignInfoYesterday(sender.name)
+    dao.signNow(sender)
+    signInfo = dao.querySignInfoYesterday(sender)
     userInfo!!.signCount = userInfo.signCount + 1
     if (signInfo != null) {
         userInfo.continuousSignCount = userInfo.continuousSignCount + 1
@@ -52,7 +52,7 @@ fun CommandMain.sign(sender: CommandSender, command: Command, label: String, arg
     sender.sendMessage(
             format(
                     "Info_Format",
-                    userInfo.username,
+                    userInfo.playerName,
                     userInfo.continuousSignCount,
                     userInfo.continuousSignCount,
                     userInfo.signCount

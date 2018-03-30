@@ -18,12 +18,12 @@ fun CommandMain.resign(sender: CommandSender, command: Command, label: String, a
         sender.sendMessage(lang("Command_Player_Only"))
         return true
     }
-    val signInfo = dao.querySignInfo(sender.name)
+    val signInfo = dao.querySignInfo(sender)
     if (signInfo == null) {
         sender.tellraw(lang("Button_Click_Me_To_Sign"))
         return true
     }
-    val userInfo = dao.queryUserInfo(sender.name)
+    val userInfo = dao.queryUserInfo(sender)
     var requireCount = -1
     for ((key, value) in settings.resignRequirements.getValues(false)) {
         if (userInfo!!.continuousSignCount <= key.toInt()) { //TODO
@@ -38,7 +38,7 @@ fun CommandMain.resign(sender: CommandSender, command: Command, label: String, a
         sender.sendMessage(format("Resign_Confirm", requireCount))
         confirmSet.add(sender)
     } else {
-        if (dao.querySignInfoByOffset(sender.name, userInfo!!.continuousSignCount * -1) != null) {
+        if (dao.querySignInfoByOffset(sender, userInfo!!.continuousSignCount * -1) != null) {
             sender.sendMessage(lang("Internal_Error"))
         } else {
             if (!sender.inventory.containsAtLeast(settings.resignItem, requireCount)) {
@@ -47,8 +47,8 @@ fun CommandMain.resign(sender: CommandSender, command: Command, label: String, a
                 val item = settings.resignItem.clone()
                 item.amount = requireCount
                 sender.inventory.removeItem(item)
-                dao.signByOffset(sender.name, userInfo.continuousSignCount * -1)
-                userInfo.continuousSignCount = dao.recountContinuous(sender.name)
+                dao.signByOffset(sender, userInfo.continuousSignCount * -1)
+                userInfo.continuousSignCount = dao.recountContinuous(sender)
                 if (userInfo.continuousSignCount > userInfo.highestContinuous) {
                     userInfo.highestContinuous = userInfo.continuousSignCount
                 }

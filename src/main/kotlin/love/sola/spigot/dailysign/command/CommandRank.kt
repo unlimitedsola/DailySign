@@ -28,7 +28,7 @@ fun CommandMain.rank(sender: CommandSender, command: Command, label: String, arg
         sender.sendMessage(
                 format(
                         "Rank_List_Entry",
-                        info.username,
+                        info.playerName,
                         info.signCount,
                         info.continuousSignCount,
                         info.highestContinuous
