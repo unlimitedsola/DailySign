@@ -26,8 +26,7 @@ fun CommandMain.get(sender: CommandSender, command: Command, label: String, args
                 } else {
                     info.server + ";" + settings.serverGroup
                 }
-                //TODO kotlinize
-                dao.updateRewarded(SignInfo(info.playerId, info.playerName, rewardServer, info.time))
+                dao.updateRewarded(info.copy(server = rewardServer))
             }
         } else {
             sender.sendMessage(lang("Already_Claimed"))
