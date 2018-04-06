@@ -21,18 +21,17 @@ fun CommandMain.sign(sender: CommandSender, command: Command, label: String, arg
     var signInfo: SignInfo? = dao.querySignInfo(sender)
     val userInfo = dao.queryUserInfo(sender)
     if (signInfo != null) {
-        val servers = Arrays.asList(*StringUtils.split(signInfo.server, ";"))
-        if (!servers.contains(settings.serverGroup)) {
+        if (!signInfo.isRewardedOnServer(settings.serverGroup)) {
             sender.tellraw(lang("Button_Claim_Reward"))
         }
         sender.sendMessage(
-                format(
-                        "Info_Format",
-                        userInfo!!.playerName,
-                        userInfo.continuousSignCount,
-                        userInfo.continuousSignCount,
-                        userInfo.signCount
-                )
+            format(
+                "Info_Format",
+                userInfo!!.playerName,
+                userInfo.continuousSignCount,
+                userInfo.continuousSignCount,
+                userInfo.signCount
+            )
         )
         return true
     }
@@ -50,13 +49,13 @@ fun CommandMain.sign(sender: CommandSender, command: Command, label: String, arg
     dao.updateUserInfo(userInfo)
     sender.sendMessage(lang("Sign_Success"))
     sender.sendMessage(
-            format(
-                    "Info_Format",
-                    userInfo.playerName,
-                    userInfo.continuousSignCount,
-                    userInfo.continuousSignCount,
-                    userInfo.signCount
-            )
+        format(
+            "Info_Format",
+            userInfo.playerName,
+            userInfo.continuousSignCount,
+            userInfo.continuousSignCount,
+            userInfo.signCount
+        )
     )
     sender.tellraw(lang("Button_Claim_Reward"))
     return true

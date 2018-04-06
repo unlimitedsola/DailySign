@@ -11,7 +11,6 @@ import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
 import java.util.*
 
 
@@ -123,7 +122,7 @@ class Dao {
                 SignInfo(
                     UUID.fromString(it.getString("player_id")),
                     it.getString("player_name"),
-                    it.getString("reward"),
+                    it.getString("reward").split(", "),
                     it.getTimestamp("sign_time").toLocalDateTime()
                 )
             } else {
@@ -159,9 +158,9 @@ class Dao {
         } == 1
     }
 
-    fun updateRewarded(info: SignInfo): Boolean {
+    fun updateSignInfo(info: SignInfo): Boolean {
         return update("UPDATE daily_sign SET reward=? WHERE player_id=? AND sign_time=?") {
-            it.setString(1, info.server)
+            it.setString(1, info.rewardedServer.joinToString())
             it.setString(2, info.playerId.toString())
             it.setObject(3, info.time)
         } == 1

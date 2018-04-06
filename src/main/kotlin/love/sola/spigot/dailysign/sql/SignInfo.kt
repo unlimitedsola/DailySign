@@ -6,6 +6,11 @@ import java.util.*
 data class SignInfo(
     val playerId: UUID,
     val playerName: String,
-    val server: String,
+    val rewardedServer: List<String>,
     val time: LocalDateTime
-)
+) {
+    fun isRewardedOnServer(server: String) = rewardedServer.contains(server)
+
+    fun applyRewardOnServer(server: String) = copy(rewardedServer = rewardedServer + server)
+}
+

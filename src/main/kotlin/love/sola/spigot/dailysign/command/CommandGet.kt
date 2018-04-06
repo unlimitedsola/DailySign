@@ -1,7 +1,6 @@
 package love.sola.spigot.dailysign.command
 
 import love.sola.spigot.dailysign.*
-import love.sola.spigot.dailysign.sql.SignInfo
 import love.sola.spigot.dailysign.utils.lang
 import love.sola.spigot.dailysign.utils.tellraw
 import org.apache.commons.lang.StringUtils
@@ -18,15 +17,9 @@ fun CommandMain.get(sender: CommandSender, command: Command, label: String, args
     if (info == null) {
         sender.tellraw(lang("Button_Click_Me_To_Sign"))
     } else {
-        val servers = StringUtils.split(info.server, ";")
-        if (!servers.contains(settings.serverGroup)) {
+        if (!info.isRewardedOnServer(settings.serverGroup)) {
             if (rewarder.check(sender)) {
-                val rewardServer = if (info.server == "") {
-                    settings.serverGroup
-                } else {
-                    info.server + ";" + settings.serverGroup
-                }
-                dao.updateRewarded(info.copy(server = rewardServer))
+                dao.updateSignInfo(info.applyRewardOnServer(settings.serverGroup))
             }
         } else {
             sender.sendMessage(lang("Already_Claimed"))
