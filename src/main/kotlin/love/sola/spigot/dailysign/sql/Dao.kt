@@ -99,20 +99,13 @@ class Dao {
     }
 
     fun querySignInfoYesterday(player: Player): SignInfo? {
-        return querySignInfoByOffset(
+        return querySignInfoOfDay(
             player,
-            -1
+            LocalDate.now().minusDays(1)
         )
     }
 
-    fun querySignInfoByOffset(player: Player, offset: Long): SignInfo? {
-        return querySignInfo(
-            player,
-            LocalDate.now().plusDays(offset)
-        )
-    }
-
-    fun querySignInfo(player: Player, date: LocalDate = LocalDate.now()): SignInfo? {
+    fun querySignInfoOfDay(player: Player, date: LocalDate = LocalDate.now()): SignInfo? {
         return query("SELECT * FROM daily_sign WHERE player_id=? AND sign_time BETWEEN ? AND ?", {
             it.setString(1, player.uniqueId.toString())
             it.setObject(2, date.atStartOfDay())

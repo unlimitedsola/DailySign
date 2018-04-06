@@ -14,7 +14,7 @@ fun CommandMain.info(sender: CommandSender, command: Command, label: String, arg
         sender.sendMessage(lang("Command_Player_Only"))
         return true
     }
-    val signInfo = dao.querySignInfo(sender)
+    val signInfo = dao.querySignInfoOfDay(sender)
     if (signInfo == null) {
         sender.tellraw(lang("Button_Click_Me_To_Sign"))
     }

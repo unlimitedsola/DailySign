@@ -6,11 +6,9 @@ import love.sola.spigot.dailysign.sql.SignInfo
 import love.sola.spigot.dailysign.utils.format
 import love.sola.spigot.dailysign.utils.lang
 import love.sola.spigot.dailysign.utils.tellraw
-import org.apache.commons.lang.StringUtils
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import java.util.*
 
 
 fun CommandMain.sign(sender: CommandSender, command: Command, label: String, args: Array<String>): Boolean {
@@ -18,7 +16,7 @@ fun CommandMain.sign(sender: CommandSender, command: Command, label: String, arg
         sender.sendMessage(lang("Command_Player_Only"))
         return true
     }
-    var signInfo: SignInfo? = dao.querySignInfo(sender)
+    var signInfo: SignInfo? = dao.querySignInfoOfDay(sender)
     val userInfo = dao.queryUserInfo(sender)
     if (signInfo != null) {
         if (!signInfo.isRewardedOnServer(settings.serverGroup)) {
@@ -36,8 +34,8 @@ fun CommandMain.sign(sender: CommandSender, command: Command, label: String, arg
         return true
     }
     dao.sign(sender)
-    signInfo = dao.querySignInfoYesterday(sender)
     userInfo!!.signCount = userInfo.signCount + 1
+    signInfo = dao.querySignInfoYesterday(sender)
     if (signInfo != null) {
         userInfo.continuousSignCount = userInfo.continuousSignCount + 1
         if (userInfo.continuousSignCount > userInfo.highestContinuous) {
