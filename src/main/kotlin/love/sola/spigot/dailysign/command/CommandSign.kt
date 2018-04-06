@@ -36,7 +36,7 @@ fun CommandMain.sign(sender: CommandSender, command: Command, label: String, arg
         )
         return true
     }
-    dao.signNow(sender)
+    dao.sign(sender)
     signInfo = dao.querySignInfoYesterday(sender)
     userInfo!!.signCount = userInfo.signCount + 1
     if (signInfo != null) {

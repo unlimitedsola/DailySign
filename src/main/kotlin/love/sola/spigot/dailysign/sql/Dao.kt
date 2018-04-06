@@ -9,6 +9,9 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.PreparedStatement
 import java.sql.ResultSet
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 
@@ -57,7 +60,7 @@ class Dao {
                   `player_id` CHAR(36) NOT NULL,
                   `player_name` VARCHAR(20) NOT NULL,
                   `reward` VARCHAR(255) NOT NULL DEFAULT '',
-                  `sign_time` INT(11) NOT NULL,
+                  `sign_time` DATETIME NOT NULL,
                   PRIMARY KEY (`id`)
                 )
             """.trimIndent()
@@ -84,47 +87,44 @@ class Dao {
         }
     }
 
-    fun signNow(player: Player): Int {
-        return sign(player, System.currentTimeMillis())
+    fun signByOffset(player: Player, offset: Long): Int {
+        return sign(player, LocalDateTime.now().plusDays(offset))
     }
 
-    fun signByOffset(player: Player, offset: Int): Int {
-        return sign(player, System.currentTimeMillis() + offset * 1000 * 3600 * 24)
-    }
-
-    fun sign(player: Player, time: Long): Int {
-        return update("INSERT INTO daily_sign VALUES(NULL,?,DEFAULT,?)") {
+    fun sign(player: Player, dateTime: LocalDateTime = LocalDateTime.now()): Int {
+        return update("INSERT INTO daily_sign VALUES(NULL,?,?,DEFAULT,?)") {
             it.setString(1, player.uniqueId.toString())
-            it.setInt(2, (time / 1000).toInt())
+            it.setString(2, player.name)
+            it.setObject(3, dateTime)
         }
     }
 
     fun querySignInfoYesterday(player: Player): SignInfo? {
-        return querySignInfo(
+        return querySignInfoByOffset(
             player,
-            (System.currentTimeMillis() / 1000 / 3600 / 24).toInt() - 1
+            -1
         )
     }
 
-    fun querySignInfoByOffset(player: Player, offset: Int): SignInfo? {
+    fun querySignInfoByOffset(player: Player, offset: Long): SignInfo? {
         return querySignInfo(
             player,
-            (System.currentTimeMillis() / 1000 / 3600 / 24).toInt() + offset
+            LocalDate.now().plusDays(offset)
         )
     }
 
-    fun querySignInfo(player: Player, date: Int = (System.currentTimeMillis() / 1000 / 3600 / 24).toInt()): SignInfo? {
+    fun querySignInfo(player: Player, date: LocalDate = LocalDate.now()): SignInfo? {
         return query("SELECT * FROM daily_sign WHERE player_id=? AND sign_time BETWEEN ? AND ?", {
             it.setString(1, player.uniqueId.toString())
-            it.setInt(2, date * 3600 * 24)
-            it.setInt(3, (date + 1) * 3600 * 24)
+            it.setObject(2, date.atStartOfDay())
+            it.setObject(3, date.plusDays(1).atStartOfDay())
         }) {
             return@query if (it.next()) {
                 SignInfo(
                     UUID.fromString(it.getString("player_id")),
                     it.getString("player_name"),
                     it.getString("reward"),
-                    it.getInt("sign_time")
+                    it.getTimestamp("sign_time").toLocalDateTime()
                 )
             } else {
                 null
@@ -140,9 +140,9 @@ class Dao {
                 UserInfo(
                     UUID.fromString(it.getString("player_id")),
                     it.getString("player_name"),
-                    it.getInt("count"),
-                    it.getInt("continuous"),
-                    it.getInt("highest")
+                    it.getLong("count"),
+                    it.getLong("continuous"),
+                    it.getLong("highest")
                 )
             } else {
                 null
@@ -153,9 +153,9 @@ class Dao {
     fun updateUserInfo(info: UserInfo): Boolean {
         return update("UPDATE sign_user SET `count`=?, continuous=?, highest=? WHERE player_id=?") {
             it.setString(4, info.player_id.toString())
-            it.setInt(1, info.signCount)
-            it.setInt(2, info.continuousSignCount)
-            it.setInt(3, info.highestContinuous)
+            it.setLong(1, info.signCount)
+            it.setLong(2, info.continuousSignCount)
+            it.setLong(3, info.highestContinuous)
         } == 1
     }
 
@@ -163,7 +163,7 @@ class Dao {
         return update("UPDATE daily_sign SET reward=? WHERE player_id=? AND sign_time=?") {
             it.setString(1, info.server)
             it.setString(2, info.playerId.toString())
-            it.setInt(3, info.time)
+            it.setObject(3, info.time)
         } == 1
     }
 
@@ -179,9 +179,9 @@ class Dao {
                     UserInfo(
                         UUID.fromString(it.getString("player_id")),
                         it.getString("player_name"),
-                        it.getInt("count"),
-                        it.getInt("continuous"),
-                        it.getInt("highest")
+                        it.getLong("count"),
+                        it.getLong("continuous"),
+                        it.getLong("highest")
                     )
                 )
             }
@@ -189,17 +189,17 @@ class Dao {
         }
     }
 
-    fun recountContinuous(player: Player): Int {
+    fun recountContinuous(player: Player): Long {
         return query("SELECT sign_time FROM daily_sign WHERE player_id=? ORDER BY sign_time DESC", {
             it.setString(1, player.uniqueId.toString())
         }) {
             if (!it.next()) return@query 0
-            var lastDate = it.getInt("sign_time") / 3600 / 24
-            var nextDate: Int
-            var count = 1
+            var lastDate = it.getTimestamp("sign_time").toLocalDateTime().toLocalDate()
+            var nextDate: LocalDate
+            var count = 1L
             while (it.next()) {
-                nextDate = it.getInt("sign_time") / 3600 / 24
-                if (lastDate - nextDate > 1) {
+                nextDate = it.getTimestamp("sign_time").toLocalDateTime().toLocalDate()
+                if (lastDate > nextDate.plusDays(1)) {
                     return@query count
                 } else {
                     if (lastDate != nextDate) count++
