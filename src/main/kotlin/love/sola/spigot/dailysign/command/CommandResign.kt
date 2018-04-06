@@ -8,6 +8,7 @@ import love.sola.spigot.dailysign.utils.tellraw
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import java.time.LocalDateTime
 import java.util.*
 
 
@@ -44,7 +45,7 @@ fun CommandMain.resign(sender: CommandSender, command: Command, label: String, a
             val item = settings.resignItem.clone()
             item.amount = requireCount
             sender.inventory.removeItem(item)
-            dao.signByOffset(sender, userInfo.continuousSignCount * -1)
+            dao.sign(sender, LocalDateTime.now().minusDays(userInfo.continuousSignCount))
             userInfo.continuousSignCount = dao.recountContinuous(sender)
             if (userInfo.continuousSignCount > userInfo.highestContinuous) {
                 userInfo.highestContinuous = userInfo.continuousSignCount

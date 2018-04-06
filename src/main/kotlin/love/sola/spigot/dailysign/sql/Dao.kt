@@ -79,23 +79,19 @@ class Dao {
         )
     }
 
-    fun createNewUser(player: Player): Int {
-        return update("INSERT IGNORE INTO sign_user VALUES(?,?,0,0,0)") {
+    fun createNewUser(player: Player) {
+        update("INSERT IGNORE INTO sign_user VALUES(?,?,0,0,0)") {
             it.setString(1, player.uniqueId.toString())
             it.setString(2, player.name)
         }
     }
 
-    fun signByOffset(player: Player, offset: Long): Int {
-        return sign(player, LocalDateTime.now().plusDays(offset))
-    }
-
-    fun sign(player: Player, dateTime: LocalDateTime = LocalDateTime.now()): Int {
+    fun sign(player: Player, dateTime: LocalDateTime = LocalDateTime.now()): Boolean {
         return update("INSERT INTO daily_sign VALUES(NULL,?,?,DEFAULT,?)") {
             it.setString(1, player.uniqueId.toString())
             it.setString(2, player.name)
             it.setObject(3, dateTime)
-        }
+        } == 1
     }
 
     fun querySignInfoYesterday(player: Player): SignInfo? {
