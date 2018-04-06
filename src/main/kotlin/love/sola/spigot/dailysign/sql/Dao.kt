@@ -55,7 +55,7 @@ class Dao {
         execute(
             """
                 CREATE TABLE IF NOT EXISTS `daily_sign` (
-                  `id` INT(11) NOT NULL AUTO_INCREMENT,
+                  `id` INT NOT NULL AUTO_INCREMENT,
                   `player_id` CHAR(36) NOT NULL,
                   `player_name` VARCHAR(20) NOT NULL,
                   `reward` VARCHAR(255) NOT NULL DEFAULT '',
@@ -70,9 +70,9 @@ class Dao {
                 CREATE TABLE IF NOT EXISTS `sign_user` (
                   `player_id` CHAR(36) NOT NULL,
                   `player_name` VARCHAR(20) NOT NULL,
-                  `count` INT(11) NOT NULL,
-                  `continuous` INT(11) NOT NULL,
-                  `highest` INT(11) NOT NULL,
+                  `count` INT NOT NULL,
+                  `continuous` INT NOT NULL,
+                  `highest` INT NOT NULL,
                   PRIMARY KEY (`player_id`)
                 )
             """.trimIndent()
