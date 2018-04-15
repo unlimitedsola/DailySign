@@ -9,10 +9,11 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.PreparedStatement
 import java.sql.ResultSet
-import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.*
 import java.util.*
 
+
+private const val PAGE_SIZE = 15
 
 class Dao {
 
@@ -94,18 +95,11 @@ class Dao {
         } == 1
     }
 
-    fun querySignInfoYesterday(player: Player): SignInfo? {
-        return querySignInfoOfDay(
-            player,
-            LocalDate.now().minusDays(1)
-        )
-    }
-
     fun querySignInfoOfDay(player: Player, date: LocalDate = LocalDate.now()): SignInfo? {
         return query("SELECT * FROM daily_sign WHERE player_id=? AND sign_time BETWEEN ? AND ?", {
             it.setString(1, player.uniqueId.toString())
             it.setObject(2, date.atStartOfDay())
-            it.setObject(3, date.plusDays(1).atStartOfDay())
+            it.setObject(3, date.atTime(LocalTime.MAX))
         }) {
             return@query if (it.next()) {
                 SignInfo(
@@ -117,6 +111,25 @@ class Dao {
             } else {
                 null
             }
+        }
+    }
+
+    fun querySignInfoOfMonth(player: Player, month: YearMonth): List<SignInfo> {
+        return query("SELECT * FROM daily_sign WHERE player_id=? AND sign_time BETWEEN ? AND ?", {
+            it.setString(1, player.uniqueId.toString())
+            it.setObject(2, month.atDay(1))
+            it.setObject(3, month.atEndOfMonth())
+        }) {
+            val result = arrayListOf<SignInfo>()
+            while (it.next()) {
+                SignInfo(
+                    UUID.fromString(it.getString("player_id")),
+                    it.getString("player_name"),
+                    it.getString("reward").split(", "),
+                    it.getTimestamp("sign_time").toLocalDateTime()
+                ).let { result.add(it) }
+            }
+            result
         }
     }
 
@@ -138,13 +151,20 @@ class Dao {
         }
     }
 
-    fun updateUserInfo(info: UserInfo): Boolean {
-        return update("UPDATE sign_user SET `count`=?, continuous=?, highest=? WHERE player_id=?") {
-            it.setString(4, info.player_id.toString())
+    fun updateUserInfo(player: Player) {
+        val info = queryUserInfo(player) ?: return
+        info.signCount = countTotalSign(player)
+        val continuous = countContinuousSign(player)
+        info.continuousSignCount = continuous
+        if (continuous > info.highestContinuous) {
+            info.highestContinuous = continuous
+        }
+        update("UPDATE sign_user SET `count`=?, continuous=?, highest=? WHERE player_id=?") {
+            it.setString(4, info.playerId.toString())
             it.setLong(1, info.signCount)
             it.setLong(2, info.continuousSignCount)
             it.setLong(3, info.highestContinuous)
-        } == 1
+        }
     }
 
     fun updateSignInfo(info: SignInfo): Boolean {
@@ -155,13 +175,13 @@ class Dao {
         } == 1
     }
 
-    fun queryRankBoard(type: String, offset: Int, count: Int): List<UserInfo> {
+    fun queryRankBoard(type: String, page: Int): List<UserInfo> {
         return query("SELECT * FROM sign_user ORDER BY ? DESC LIMIT ?,?", {
             it.setString(1, type)
-            it.setInt(2, offset)
-            it.setInt(3, count)
+            it.setInt(2, page * PAGE_SIZE)
+            it.setInt(3, PAGE_SIZE)
         }) {
-            val infoList = ArrayList<UserInfo>(count)
+            val infoList = ArrayList<UserInfo>(PAGE_SIZE)
             while (it.next()) {
                 infoList.add(
                     UserInfo(
@@ -177,24 +197,31 @@ class Dao {
         }
     }
 
-    fun recountContinuous(player: Player): Long {
+    private fun countContinuousSign(player: Player): Long {
         return query("SELECT sign_time FROM daily_sign WHERE player_id=? ORDER BY sign_time DESC", {
             it.setString(1, player.uniqueId.toString())
         }) {
-            if (!it.next()) return@query 0
-            var lastDate = it.getTimestamp("sign_time").toLocalDateTime().toLocalDate()
-            var nextDate: LocalDate
-            var count = 1L
+            var expectedDate = LocalDate.now()
+            var count = 0L
             while (it.next()) {
-                nextDate = it.getTimestamp("sign_time").toLocalDateTime().toLocalDate()
-                if (lastDate > nextDate.plusDays(1)) {
-                    return@query count
+                val cursorDate = it.getTimestamp("sign_time").toLocalDateTime().toLocalDate()
+                if (expectedDate == cursorDate) {
+                    count++
+                    expectedDate = expectedDate.minusDays(1)
                 } else {
-                    if (lastDate != nextDate) count++
-                    lastDate = nextDate
+                    break
                 }
             }
-            return@query -1
+            return@query count
+        }
+    }
+
+    private fun countTotalSign(player: Player): Long {
+        return query("SELECT count(*) FROM daily_sign WHERE player_id=?", {
+            it.setString(1, player.uniqueId.toString())
+        }) {
+            it.next()
+            return@query it.getLong(1)
         }
     }
 

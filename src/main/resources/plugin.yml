@@ -6,9 +6,5 @@ commands:
       description: Sola.
       usage: |
         /<command>  --签到
-        /<command> get  --领取签到奖励
         /<command> info  --签到信息
         /<command> top  --签到排行
-        /<command> bq  --补签（需要补签卡）
-        /<command> set generic <chance>  --设置日常奖励（OP）
-        /<command> set streak <chance> [streak]  --设置连签奖励（OP）

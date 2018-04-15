@@ -22,7 +22,7 @@ fun CommandMain.info(sender: CommandSender, command: Command, label: String, arg
     sender.sendMessage(
             format(
                     "Info_Format",
-                    userInfo!!.player_id,
+                    userInfo!!.playerName,
                     userInfo.signCount,
                     userInfo.continuousSignCount,
                     userInfo.highestContinuous

@@ -1,7 +1,7 @@
 #SQL
 #连接地址，用户名，密码
 sql:
-  url: 'jdbc:mysql://molecular-assembler/daily_sign'
+  url: 'jdbc:mysql://molecular-assembler/daily_sign?useSSL=false'
   username: 'root'
   password: ''
 
@@ -21,27 +21,72 @@ resignRequirements:
 #补签卡物品
 resignItem:
   ==: org.bukkit.inventory.ItemStack
-  type: ENCHANTED_BOOK
-  meta:
-    ==: ItemMeta
-    meta-type: ENCHANTED
-    stored-enchants:
-      LUCK: 3
+  type: STONE
 
 #奖励配置
-rewards:
-  ==: love.sola.spigot.dailysign.Rewards
-  generic: []
-  streak: {}
+rewardSetting:
+  ==: DailySign.RewardSetting
+  #日常签到奖励
+  generic:
+    ==: DailySign.RewardWithBonus
+    #普通奖励
+    reward:
+      #以奖励池形式随机发放奖励
+      ==: DailySign.RewardPool
+      rewards:
+        #权重50
+        50:
+          ==: DailySign.Reward
+          #奖励一组石头
+          items:
+            -
+              ==: org.bukkit.inventory.ItemStack
+              type: STONE
+              amount: 64
+    #特殊权限用户额外奖励
+    bonus:
+      #特殊权限
+      dailysign.vip1:
+        #固定奖励
+        ==: DailySign.Reward
+        #执行后台命令
+        commands:
+          - say Hello World
+      dailysign.vip2:
+        #以奖励池形式随机发放奖励
+        ==: DailySign.RewardPool
+        rewards:
+          #权重50
+          50:
+            ==: DailySign.Reward
+            #奖励一组石头
+            items:
+              -
+                ==: org.bukkit.inventory.ItemStack
+                type: STONE
+                amount: 64
+  #连续签到奖励
+  streak:
+    #连续签到天数
+    3:
+      ==: DailySign.RewardWithBonus
+      reward:
+        ==: DailySign.Reward
+        #奖励一组原石
+        items:
+          -
+            ==: org.bukkit.inventory.ItemStack
+            type: COBBLESTONE
+            amount: 64
+      #额外奖励不配置
+      bonus: {}
+
 
 messages:
     #Generic
     Command_Player_Only: '该命令只能由玩家执行.'
     Internal_Error: '内部错误,请联系管理员.'
     Not_Enough_Requirements: '所需物品不足.'
-    #FancyMessage
-    Button_Click_Me_To_Sign: '["",{"text":"点我签到","color":"gold","bold":true,"clickEvent":{"action":"run_command","value":"/qiandao"}}]'
-    Button_Claim_Reward: '["",{"text":"点我领取签到奖励","color":"gold","bold":true,"clickEvent":{"action":"run_command","value":"/qiandao get"}}]'
     #Get
     Already_Claimed: '您已领取过当日签到礼包.'
     #Rank
@@ -52,11 +97,10 @@ messages:
     Info_Format: '玩家: {0}|总签到: {1}|连续签到: {2}|历史最高: {3}'
     #Sign
     Sign_Success: '签到成功!'
-    #Resign
+    #GUI
     Unresignable: '因时间过久,已无法补签.'
-    Resign_Confirm: '本次补签需要{0}张补签卡,请重新键入该命令确认此操作.'
-    Resign_Success: '补签成功.'
-    #SignAll
-    Sign_All_Success: '连签成功.'
-    #Set
-    Set_Success: '奖品已成功设置.'
+    Gui_Inventory_Name: '每日签到'
+    Gui_Get_Reward: '领取今日签到奖励'
+    Gui_Sign: '点击签到'
+    Gui_Prev_Month: '上一页'
+    Gui_Next_Month: '下一页'

@@ -21,18 +21,18 @@ fun CommandMain.rank(sender: CommandSender, command: Command, label: String, arg
         }
     }
     var page = if (args.size == 3) Integer.parseInt(args[2]) else 1
-    page = Math.max(0, page)
-    val infoList = dao.queryRankBoard(type, 15 * (page - 1), 15)
+    page = Math.max(1, page)
+    val infoList = dao.queryRankBoard(type, page - 1)
     sender.sendMessage(format("Rank_List_Header", page))
     for (info in infoList) {
         sender.sendMessage(
-                format(
-                        "Rank_List_Entry",
-                        info.playerName,
-                        info.signCount,
-                        info.continuousSignCount,
-                        info.highestContinuous
-                )
+            format(
+                "Rank_List_Entry",
+                info.playerName,
+                info.signCount,
+                info.continuousSignCount,
+                info.highestContinuous
+            )
         )
     }
     return true

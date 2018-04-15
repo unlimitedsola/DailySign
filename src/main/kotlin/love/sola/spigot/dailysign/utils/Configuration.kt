@@ -7,6 +7,7 @@ import java.text.MessageFormat
 import kotlin.reflect.KProperty
 import kotlin.reflect.KVisibility
 import kotlin.reflect.full.memberProperties
+import kotlin.reflect.jvm.isAccessible
 
 operator fun <R, T> ConfigurationSection.getValue(thisRef: R, property: KProperty<*>): T = get(property.name) as T
 operator fun <R, T> ConfigurationSection.setValue(thisRef: R, property: KProperty<*>, value: T) =
@@ -14,8 +15,9 @@ operator fun <R, T> ConfigurationSection.setValue(thisRef: R, property: KPropert
 
 interface AutoConfigurationSerializable : ConfigurationSerializable {
     override fun serialize(): Map<String, Any?> {
-        return this::class.memberProperties.filter { it.visibility != KVisibility.PRIVATE }
+        return this::class.memberProperties.filter { !it.name.startsWith('_') }
             .associate {
+                it.getter.isAccessible = true
                 it.name to it.getter.call(this)
             }
     }

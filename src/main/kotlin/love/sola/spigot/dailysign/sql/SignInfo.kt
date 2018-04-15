@@ -1,5 +1,6 @@
 package love.sola.spigot.dailysign.sql
 
+import love.sola.spigot.dailysign.settings
 import java.time.LocalDateTime
 import java.util.*
 
@@ -9,8 +10,8 @@ data class SignInfo(
     val rewardedServer: List<String>,
     val time: LocalDateTime
 ) {
-    fun isRewardedOnServer(server: String) = rewardedServer.contains(server)
+    fun isRewardedOnThisServer() = rewardedServer.contains(settings.serverGroup)
 
-    fun applyRewardOnServer(server: String) = copy(rewardedServer = rewardedServer + server)
+    fun applyRewardThisServer() = copy(rewardedServer = rewardedServer + settings.serverGroup)
 }
 
